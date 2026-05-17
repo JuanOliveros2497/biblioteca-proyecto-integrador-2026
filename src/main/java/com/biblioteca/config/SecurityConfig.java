@@ -21,6 +21,7 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/login", "/registro", "/css/**", "/js/**").permitAll()
+                .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/categorias/**").hasRole("ADMIN")
                 .requestMatchers("/libros/nuevo", "/libros/editar/**", "/libros/eliminar/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
@@ -33,6 +34,12 @@ public class SecurityConfig {
             .logout(logout -> logout
                 .logoutSuccessUrl("/login?logout")
                 .permitAll()
+            )
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers("/h2-console/**")
+            )
+            .headers(headers -> headers
+                .frameOptions(frame -> frame.sameOrigin())
             );
         return http.build();
     }
