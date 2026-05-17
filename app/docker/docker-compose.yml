@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+
+  biblioteca-app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: biblioteca-app
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:h2:file:/app/data/bibliotecadb
+      - SPRING_DATASOURCE_USERNAME=sa
+      - SPRING_DATASOURCE_PASSWORD=
+    volumes:
+      - biblioteca-data:/app/data
+    networks:
+      - biblioteca-network
+    depends_on:
+      - sonarqube
+
+  sonarqube:
+    image: sonarqube:community
+    container_name: sonarqube
+    ports:
+      - "9000:9000"
+    environment:
+      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+    volumes:
+      - sonarqube-data:/opt/sonarqube/data
+      - sonarqube-logs:/opt/sonarqube/logs
+      - sonarqube-extensions:/opt/sonarqube/extensions
+    networks:
+      - biblioteca-network
+
+volumes:
+  biblioteca-data:
+  sonarqube-data:
+  sonarqube-logs:
+  sonarqube-extensions:
+
+networks:
+  biblioteca-network:
+    driver: bridge

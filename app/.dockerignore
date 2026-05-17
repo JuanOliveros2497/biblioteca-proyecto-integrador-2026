@@ -1,0 +1,5 @@
+app/target/
+app/.mvn/
+app/data/
+**/.git
+**/node_modules
