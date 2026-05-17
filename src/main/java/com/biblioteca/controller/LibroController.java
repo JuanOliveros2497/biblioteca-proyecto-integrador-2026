@@ -57,8 +57,12 @@ public class LibroController {
     }
 
     @GetMapping("/eliminar/{id}")
-    public String eliminar(@PathVariable Long id) {
+public String eliminar(@PathVariable Long id, Model model) {
+    try {
         libroService.eliminar(id);
         return "redirect:/libros";
+    } catch (Exception e) {
+        return "redirect:/libros?error=No se puede eliminar el libro";
     }
+}
 }

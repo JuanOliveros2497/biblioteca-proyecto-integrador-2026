@@ -46,4 +46,11 @@ public class Libro {
     @ManyToOne
     @JoinColumn(name = "categoria_id")
     private Categoria categoria;
+
+    @PrePersist
+public void prePersist() {
+    if (this.cantidadDisponible == null || this.cantidadDisponible == 1) {
+        this.cantidadDisponible = this.cantidad;
+    }
+}
 }

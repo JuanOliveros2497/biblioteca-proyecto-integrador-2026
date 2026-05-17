@@ -15,8 +15,9 @@ public class LibroService {
     private final LibroRepository libroRepository;
 
     public Libro crear(Libro libro) {
-        return libroRepository.save(libro);
-    }
+    libro.setCantidadDisponible(libro.getCantidad());
+    return libroRepository.save(libro);
+}
 
     public List<Libro> listarTodos() {
         return libroRepository.findAll();
@@ -39,12 +40,20 @@ public class LibroService {
     }
 
     public Libro actualizar(Libro libro) {
-        return libroRepository.save(libro);
-    }
+    Libro existente = libroRepository.findById(libro.getId())
+            .orElseThrow(() -> new RuntimeException("Libro no encontrado"));
+    int diferencia = libro.getCantidad() - existente.getCantidad();
+    libro.setCantidadDisponible(existente.getCantidadDisponible() + diferencia);
+    if (libro.getCantidadDisponible() < 0) libro.setCantidadDisponible(0);
+    libro.setDisponible(libro.getCantidadDisponible() > 0);
+    return libroRepository.save(libro);
+}
 
     public void eliminar(Long id) {
-        libroRepository.deleteById(id);
-    }
+    Libro libro = libroRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Libro no encontrado"));
+    libroRepository.delete(libro);
+}
 
     public List<Libro> buscar(String query) {
         if (query == null || query.isEmpty()) {
