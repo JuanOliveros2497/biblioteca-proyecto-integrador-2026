@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Préstamos - Biblioteca</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="/libros"><i class="bi bi-book"></i> Biblioteca</a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" href="/libros"><i class="bi bi-book"></i> Libros</a>
+            <a class="nav-link active" href="/prestamos"><i class="bi bi-bookmark"></i> Préstamos</a>
+            <a sec:authorize="hasRole('ADMIN')" class="nav-link" href="/categorias">
+                <i class="bi bi-tags"></i> Categorías
+            </a>
+            <form th:action="@{/logout}" method="post" class="d-inline">
+                <button class="btn btn-outline-light btn-sm ms-2" type="submit">
+                    <i class="bi bi-box-arrow-right"></i> Salir
+                </button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+
+    <h2 class="page-title"><i class="bi bi-bookmark"></i> Mis Préstamos</h2>
+
+    <!-- ALERTA VENCIDOS -->
+    <div th:if="${not #lists.isEmpty(vencidos)}" class="alert alert-danger mb-4">
+        <i class="bi bi-exclamation-triangle"></i>
+        <strong>Tienes <span th:text="${#lists.size(vencidos)}"></span> préstamo(s) vencido(s).</strong>
+        Por favor devuelve los libros a la brevedad.
+    </div>
+
+    <!-- TABLA PRÉSTAMOS -->
+    <div class="card">
+        <div class="card-header">
+            <i class="bi bi-list"></i> Historial de Préstamos
+        </div>
+        <div class="card-body p-0">
+            <div th:if="${not #lists.isEmpty(prestamos)}">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Libro</th>
+                            <th>Autor</th>
+                            <th sec:authorize="hasRole('ADMIN')">Usuario</th>
+                            <th>Fecha Préstamo</th>
+                            <th>Fecha Devolución</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="prestamo : ${prestamos}">
+                            <td th:text="${prestamo.libro.titulo}"></td>
+                            <td th:text="${prestamo.libro.autor}"></td>
+                            <td sec:authorize="hasRole('ADMIN')"
+                                th:text="${prestamo.usuario.nombre}"></td>
+                            <td th:text="${#temporals.format(prestamo.fechaPrestamo, 'dd/MM/yyyy')}"></td>
+                            <td th:text="${#temporals.format(prestamo.fechaDevolucionEsperada, 'dd/MM/yyyy')}"></td>
+                            <td>
+                                <span th:if="${prestamo.estado.name() == 'ACTIVO'}"
+                                      class="badge-activo">Activo</span>
+                                <span th:if="${prestamo.estado.name() == 'DEVUELTO'}"
+                                      class="badge-devuelto">Devuelto</span>
+                                <span th:if="${prestamo.estado.name() == 'VENCIDO'}"
+                                      class="badge-vencido">Vencido</span>
+                            </td>
+                            <td>
+                                <a th:if="${prestamo.estado.name() == 'ACTIVO'}"
+                                   th:href="@{/prestamos/devolver/{id}(id=${prestamo.id})}"
+                                   class="btn btn-warning btn-sm"
+                                   onclick="return confirm('¿Confirmar devolución?')">
+                                    <i class="bi bi-arrow-return-left"></i> Devolver
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div th:if="${#lists.isEmpty(prestamos)}" class="text-center py-5">
+                <i class="bi bi-bookmark" style="font-size: 4rem; color: #ccc;"></i>
+                <h5 class="text-muted mt-3">No tienes préstamos activos</h5>
+                <a href="/libros" class="btn btn-primary mt-2">
+                    <i class="bi bi-book"></i> Ver catálogo
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
